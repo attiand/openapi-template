@@ -1,0 +1,46 @@
+package {{package}};
+
+import {{modelPackage}}.*;
+import {{package}}.{{classname}}Service;
+
+{{#imports}}import {{import}};
+{{/imports}}
+
+import java.util.Map;
+import java.util.List;
+import {{package}}.NotFoundException;
+
+import java.io.InputStream;
+
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.*;
+import javax.inject.Inject;
+
+{{#useBeanValidation}}
+import javax.validation.constraints.*;
+import javax.validation.Valid;
+{{/useBeanValidation}}
+{{#operations}}{{#operation}}{{#isMultipart}}import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+{{/isMultipart}}{{/operation}}{{/operations}}
+@Path("/{{{baseName}}}")
+{{#hasConsumes}}@Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
+{{#hasProduces}}@Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
+{{>generatedAnnotation}}
+{{#operations}}
+public class {{classname}}  {
+
+    @Inject {{classname}}Service service;
+
+{{#operation}}
+    @{{httpMethod}}
+    {{#subresourceOperation}}@Path("{{{path}}}"){{/subresourceOperation}}
+    {{#hasConsumes}}@Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
+    {{#hasProduces}}@Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
+    public Response {{nickname}}({{#isMultipart}}MultipartFormDataInput input,{{/isMultipart}}{{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{^isMultipart}}{{>formParams}}{{/isMultipart}}{{#isMultipart}}{{^isFormParam}}{{/isFormParam}}{{/isMultipart}}{{/allParams}})
+    throws NotFoundException {
+        return service.{{nickname}}({{#isMultipart}}input,{{/isMultipart}}{{#allParams}}{{^isMultipart}}{{paramName}}{{/isMultipart}}{{#isMultipart}}{{^isFormParam}}{{paramName}}{{/isFormParam}}{{/isMultipart}}{{/allParams}});
+    }
+{{/operation}}
+}
+{{/operations}}
